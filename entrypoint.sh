@@ -5,15 +5,16 @@ DIR_CONFIG="/etc/v2ray"
 DIR_RUNTIME="/usr/bin"
 DIR_TMP="$(mktemp -d)"
 
-ID=35c7509a-f78e-4ec8-a773-44f6fe149025
+ID=d1ef5c24-0589-418d-d79d-447eef9671d6
 AID=64
 WSPATH=/
-PORT=80
+PORT=2333
 
 # Write V2Ray configuration
 cat << EOF > ${DIR_TMP}/heroku.json
 {
     "inbounds": [{
+        "listen":"0.0.0.0",
         "port": ${PORT},
         "protocol": "vmess",
         "settings": {
