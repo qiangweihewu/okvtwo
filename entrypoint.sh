@@ -1,51 +1,48 @@
 #!/bin/sh
-#Global variables
-DIR_CONFIG="/etc/v2ray"
-DIR_RUNTIME="/usr/bin"
-DIR_TMP="$(mktemp -d)"
 
-const ID=d1ef5c24-0589-418d-d79d-447eef9671d6
-const AID=64
-const WSPATH=/
-const PORT = process.env.PORT || 5000
+UUID=d1ef5c24-0589-418d-d79d-447eef9671d6
+AID=64
+WSPATH=/
+PORT = process.env.PORT || 5000
 
 # Write V2Ray configuration
-cat <<-EOF > ${DIR_TMP}/config.json
+mkdir /usr/bin/v2ray /etc/v2ray
+curl -fsSL --retry 10 --retry-max-time 60 -H "Cache-Control: no-cache" -o /v2ray.zip https://github.com/v2fly/v2ray-core/releases/latest/download/v2ray-linux-64.zip
+touch /etc/v2ray/config.json
+unzip /v2ray.zip -d /usr/bin/v2ray
+rm -rf /v2ray.zip /usr/bin/v2ray/*.sig /usr/bin/v2ray/doc /usr/bin/v2ray/*.json /usr/bin/v2ray/*.dat /usr/bin/v2ray/sys*
+
+wget --no-check-certificate -qO 'demo.tar.gz' "https://github.com/ki8852/v2ray-heroku-undone/raw/master/demo.tar.gz"
+tar xvf demo.tar.gz
+rm -rf demo.tar.gz
+
+cat <<-EOF > /etc/v2ray/config.json
 {
-    "inbounds": [{
-        listen(PORT, () => console.log(`Listening on ${ PORT }`)
-}),
-        "protocol": "vmess",
-        "settings": {
-            "clients": [{
-                "id": "${ID}",
-                "alterId": ${AID}
-            }]
+   "inbound":{
+        "protocol":"vmess",
+        "listen":"0.0.0.0",
+        "port":${PORT},
+        "settings":{
+            "clients":[
+                {
+                    "id":"${UUID}",
+                    "alterId":${AID}
+                }
+            ]
         },
-        "streamSettings": {
-            "network": "ws",
-            "wsSettings": {
-                "path": "${WSPATH}"
+        "streamSettings":{
+            "network":"ws",
+            "wsSettings":{
+                "path":"${WSPATH}"
             }
         }
-    }],
-    "outbounds": [{
-        "protocol": "freedom"
-    }]
+    },
+    "outbound":{
+        "protocol":"freedom",
+        "settings":{
+        }
+    }
 }
 EOF
 
-# Get V2Ray executable release
-curl --retry 10 --retry-max-time 60 -H "Cache-Control: no-cache" -fsSL github.com/v2fly/v2ray-core/releases/latest/download/v2ray-linux-64.zip -o ${DIR_TMP}/v2ray_dist.zip
-busybox unzip ${DIR_TMP}/v2ray_dist.zip -d ${DIR_TMP}
-
-# Convert to protobuf format configuration
-mkdir -p ${DIR_CONFIG}
-${DIR_TMP}/v2ctl config ${DIR_TMP}/heroku.json > ${DIR_CONFIG}/config.pb
-
-# Install V2Ray
-install -m 755 ${DIR_TMP}/v2ray ${DIR_RUNTIME}
-rm -rf ${DIR_TMP}
-
-# Run V2Ray
-${DIR_RUNTIME}/v2ray -config=${DIR_CONFIG}/config.pb
+/usr/bin/v2ray/v2ray -config=/etc/v2ray/config.json
