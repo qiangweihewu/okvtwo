@@ -8,14 +8,14 @@ DIR_TMP="$(mktemp -d)"
 ID=d1ef5c24-0589-418d-d79d-447eef9671d6
 AID=64
 WSPATH=/
-PORT=7788
+PORT=process.env.PORT || 5000
 
 # Write V2Ray configuration
 cat << EOF > ${DIR_TMP}/heroku.json
 {
     "inbounds": [{
         "listen":"0.0.0.0",
-        "port": 7788,
+        "port": ${PORT},
         "protocol": "vmess",
         "settings": {
             "clients": [{
