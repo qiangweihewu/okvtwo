@@ -1,6 +1,5 @@
 #!/bin/sh
-
-# Global variables
+#Global variables
 DIR_CONFIG="/etc/v2ray"
 DIR_RUNTIME="/usr/bin"
 DIR_TMP="$(mktemp -d)"
@@ -11,11 +10,10 @@ const WSPATH=/
 const PORT = process.env.PORT || 5000
 
 # Write V2Ray configuration
-cat << EOF > ${DIR_TMP}/heroku.json
+cat <<-EOF > ${DIR_TMP}/config.json
 {
     "inbounds": [{
-        listen(port, "0.0.0.0", function() {
-console.log("Listening on Port 3000");
+        listen(PORT, () => console.log(`Listening on ${ PORT }`)
 }),
         "protocol": "vmess",
         "settings": {
