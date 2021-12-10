@@ -5,17 +5,18 @@ DIR_CONFIG="/etc/v2ray"
 DIR_RUNTIME="/usr/bin"
 DIR_TMP="$(mktemp -d)"
 
-ID=d1ef5c24-0589-418d-d79d-447eef9671d6
-AID=64
-WSPATH=/
-PORT=process.env.PORT || 5000
+const ID=d1ef5c24-0589-418d-d79d-447eef9671d6
+const AID=64
+const WSPATH=/
+const PORT = process.env.PORT || 5000
 
 # Write V2Ray configuration
 cat << EOF > ${DIR_TMP}/heroku.json
 {
     "inbounds": [{
-        "listen":"0.0.0.0",
-        "port": ${PORT},
+        listen(port, "0.0.0.0", function() {
+console.log("Listening on Port 3000");
+}),
         "protocol": "vmess",
         "settings": {
             "clients": [{
